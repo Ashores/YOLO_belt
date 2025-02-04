@@ -9,13 +9,13 @@ model:  # path to model file, i.e. yolov8n.pt, yolov8n.yaml
 data:  # path to data file, i.e. coco128.yaml
 epochs: 100  # number of epochs to train for
 patience: 50  # epochs to wait for no observable improvement for early stopping of training
-batch: 1  # number of images per batch (-1 for AutoBatch)
+batch: 64  # number of images per batch (-1 for AutoBatch)
 imgsz: 640  # size of input images as integer or w,h
 save: True  # save train checkpoints and predict results
 save_period: -1 # Save checkpoint every x epochs (disabled if < 1)
 cache: False  # True/ram, disk or False. Use cache for data loading
 device: 0  # device to run on, i.e. cuda device=0 or device=0,1,2,3 or device=cpu
-workers:  0  # number of worker threads for data loading (per RANK if DDP)
+workers:  8  # number of worker threads for data loading (per RANK if DDP)
 project:  # project name
 name:  # experiment name, results saved to 'project/name' directory
 exist_ok: False  # whether to overwrite existing experiment
@@ -25,7 +25,7 @@ verbose: True  # whether to print verbose output
 seed: 0  # random seed for reproducibility
 deterministic: True  # whether to enable deterministic mode
 single_cls: False  # train multi-class data as single-class
-image_weights: False  # use weighted images selection for training
+image_weights: False  # use weighted image selection for training
 rect: False  # rectangular training if mode='train' or rectangular validation if mode='val'
 cos_lr: False  # use cosine learning rate scheduler
 close_mosaic: 0  # (int) disable mosaic augmentation for final epochs
@@ -46,7 +46,7 @@ save_json: False  # save results to JSON file
 save_hybrid: False  # save hybrid version of labels (labels + additional predictions)
 conf:  # object confidence threshold for detection (default 0.25 predict, 0.001 val)
 iou: 0.7  # intersection over union (IoU) threshold for NMS
-max_det: 300  # maximum number of detections per images
+max_det: 300  # maximum number of detections per image
 half: False  # use half precision (FP16)
 dnn: False  # use OpenCV DNN for ONNX inference
 plots: True  # save plots during train/val
@@ -62,7 +62,7 @@ show_conf: True  # show object confidence scores in plots
 vid_stride: 1  # video frame-rate stride
 line_thickness: 3  # bounding box thickness (pixels)
 visualize: False  # visualize model features
-augment: False  # apply images augmentation to prediction sources
+augment: False  # apply image augmentation to prediction sources
 agnostic_nms: False  # class-agnostic NMS
 classes:  # filter results by class, i.e. class=0, or class=[0,2,3]
 retina_masks: False  # use high-resolution segmentation masks
@@ -94,18 +94,18 @@ pose: 12.0  # pose loss gain
 kobj: 1.0  # keypoint obj loss gain
 label_smoothing: 0.0  # label smoothing (fraction)
 nbs: 64  # nominal batch size
-hsv_h: 0.015  # images HSV-Hue augmentation (fraction)
-hsv_s: 0.7  # images HSV-Saturation augmentation (fraction)
-hsv_v: 0.4  # images HSV-Value augmentation (fraction)
-degrees: 0.0  # images rotation (+/- deg)
-translate: 0.1  # images translation (+/- fraction)
-scale: 0.5  # images scale (+/- gain)
-shear: 0.0  # images shear (+/- deg)
-perspective: 0.0  # images perspective (+/- fraction), range 0-0.001
-flipud: 0.0  # images flip up-down (probability)
-fliplr: 0.5  # images flip left-right (probability)
-mosaic: 1.0  # images mosaic (probability)
-mixup: 0.0  # images mixup (probability)
+hsv_h: 0.015  # image HSV-Hue augmentation (fraction)
+hsv_s: 0.7  # image HSV-Saturation augmentation (fraction)
+hsv_v: 0.4  # image HSV-Value augmentation (fraction)
+degrees: 0.0  # image rotation (+/- deg)
+translate: 0.1  # image translation (+/- fraction)
+scale: 0.5  # image scale (+/- gain)
+shear: 0.0  # image shear (+/- deg)
+perspective: 0.0  # image perspective (+/- fraction), range 0-0.001
+flipud: 0.0  # image flip up-down (probability)
+fliplr: 0.5  # image flip left-right (probability)
+mosaic: 1.0  # image mosaic (probability)
+mixup: 0.0  # image mixup (probability)
 copy_paste: 0.0  # segment copy-paste (probability)
 
 # Custom config.yaml ---------------------------------------------------------------------------------------------------

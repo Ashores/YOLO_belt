@@ -17,6 +17,7 @@ from ultralytics.yolo.utils.plotting import plot_images, plot_labels, plot_resul
 from ultralytics.yolo.utils.tal import TaskAlignedAssigner, dist2bbox, make_anchors
 from ultralytics.yolo.utils.torch_utils import de_parallel
 import pdb
+from ultralytics.yolo.utils.loss import FocalLoss
 
 # BaseTrainer python usage
 class DetectionTrainer(BaseTrainer):
@@ -126,6 +127,7 @@ class Loss:
 
         m = model.model[-1]  # Detect() module
         self.bce = nn.BCEWithLogitsLoss(reduction='none')
+        self.cfl = FocalLoss(alpha=[0.11,0.18,0.67,0.05], gamma=2, num_classes=4)
         self.hyp = h
         self.stride = m.stride  # model strides
         self.nc = m.nc  # number of classes
@@ -200,7 +202,8 @@ class Loss:
 
         # cls loss
         # loss[1] = self.varifocal_loss(pred_scores, target_scores, target_labels) / target_scores_sum  # VFL way
-        loss[1] = self.bce(pred_scores, target_scores.to(dtype)).sum() / target_scores_sum  # BCE
+        # loss[1] = self.bce(pred_scores, target_scores.to(dtype)).sum() / target_scores_sum  # BCE
+        loss[1] = self.cfl(pred_scores, gt_labels) / target_scores_sum + self.bce(pred_scores, target_scores.to(dtype)).sum() / target_scores_sum
 
         # bbox loss
         if fg_mask.sum():

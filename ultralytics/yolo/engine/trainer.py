@@ -172,10 +172,11 @@ class Distillation_loss:
 
         self.distiller = distiller
         # channels_s=[32,64,128,256,128,64,128,256]
-        # channels_t=[128,256,512,512,512,256,512,512]
-        # channels_s=[128,256,128,64,128,256] #yolo_s.pt
+        channels_t=[256,512,256,128,256,512]
+        # channels_t=[64,128,64,32,64,128]
+        # channels_t=[128,256,128,64,128,256] #yolo_s.pt
         channels_s=[64,128,64,32,64,128]   #yolo_s.yaml
-        channels_t=[512,512,512,256,512,512]
+        # channels_t=[512,512,512,256,512,512]
         # channels_s=[64,128,256]
         # channels_t=[256,512,512]
         self.D_loss_fn = FeatureLoss(channels_s=channels_s,channels_t=channels_t)
@@ -924,7 +925,7 @@ def check_amp(model):
         del m
         return a.shape == b.shape and torch.allclose(a, b.float(), atol=0.5)  # close to 0.5 absolute tolerance
 
-    f = ROOT / 'assets/bus.jpg'  # images to check
+    f = ROOT / 'assets/bus.jpg'  # image to check
     im = f if f.exists() else 'https://ultralytics.com/images/bus.jpg' if ONLINE else np.ones((640, 640, 3))
     prefix = colorstr('AMP: ')
     LOGGER.info(f'{prefix}running Automatic Mixed Precision (AMP) checks with YOLOv8n...')

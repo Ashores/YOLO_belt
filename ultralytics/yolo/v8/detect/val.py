@@ -18,7 +18,7 @@ from ultralytics.yolo.utils.torch_utils import de_parallel
 
 class DetectionValidator(BaseValidator):
 
-    def __init__(self, dataloader=None, save_dir=None, pbar=None, args=None, _callbacks=None):
+    def __init__(self, dataloader=None, save_dir='D:\Program Files\yolov8_Distillation\\result', pbar=None, args=None, _callbacks=None):
         """Initialize detection model with necessary variables and settings."""
         super().__init__(dataloader, save_dir, pbar, args, _callbacks)
         self.args.task = 'detect'
