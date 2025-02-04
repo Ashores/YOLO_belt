@@ -1,0 +1,4 @@
+0 wear
+1 breakdown
+2 damage
+3 tear

@@ -52,7 +52,7 @@ class DetectionTrainer(BaseTrainer):
         """nl = de_parallel(self.model).model[-1].nl  # number of detection layers (to scale hyps)."""
         # self.args.box *= 3 / nl  # scale to layers
         # self.args.cls *= self.data["nc"] / 80 * 3 / nl  # scale to classes and layers
-        # self.args.cls *= (self.args.imgsz / 640) ** 2 * 3 / nl  # scale to image size and layers
+        # self.args.cls *= (self.args.imgsz / 640) ** 2 * 3 / nl  # scale to images size and layers
         self.model.nc = self.data['nc']  # attach number of classes to model
         self.model.names = self.data['names']  # attach class names to model
         self.model.args = self.args  # attach hyperparameters to model
@@ -144,7 +144,7 @@ class Loss:
         if targets.shape[0] == 0:
             out = torch.zeros(batch_size, 0, 5, device=self.device)
         else:
-            i = targets[:, 0]  # image index
+            i = targets[:, 0]  # images index
             _, counts = i.unique(return_counts=True)
             counts = counts.to(dtype=torch.int32)
             out = torch.zeros(batch_size, counts.max(), 5, device=self.device)
@@ -177,7 +177,7 @@ class Loss:
         
         dtype = pred_scores.dtype
         batch_size = pred_scores.shape[0]
-        imgsz = torch.tensor(feats[0].shape[2:], device=self.device, dtype=dtype) * self.stride[0]  # image size (h,w)
+        imgsz = torch.tensor(feats[0].shape[2:], device=self.device, dtype=dtype) * self.stride[0]  # images size (h,w)
         anchor_points, stride_tensor = make_anchors(feats, self.stride, 0.5)
 
 

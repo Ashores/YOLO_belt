@@ -10,7 +10,7 @@ from ultralytics.yolo.utils import DEFAULT_CFG, ROOT, ops
 class DetectionPredictor(BasePredictor):
 
     def preprocess(self, img):
-        """Convert an image to PyTorch tensor and normalize pixel values."""
+        """Convert an images to PyTorch tensor and normalize pixel values."""
         img = (img if isinstance(img, torch.Tensor) else torch.from_numpy(img)).to(self.model.device)
         img = img.half() if self.model.fp16 else img.float()  # uint8 to fp16/32
         img /= 255  # 0 - 255 to 0.0 - 1.0
@@ -37,7 +37,7 @@ class DetectionPredictor(BasePredictor):
 
 
 def predict(cfg=DEFAULT_CFG, use_python=False):
-    """Runs YOLO model inference on input image(s)."""
+    """Runs YOLO model inference on input images(s)."""
     model = cfg.model or 'yolov8n.pt'
     source = cfg.source if cfg.source is not None else ROOT / 'assets' if (ROOT / 'assets').exists() \
         else 'https://ultralytics.com/images/bus.jpg'

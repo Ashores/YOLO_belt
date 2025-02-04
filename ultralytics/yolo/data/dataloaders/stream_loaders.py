@@ -98,7 +98,7 @@ class LoadStreams:
             time.sleep(0.0)  # wait time
 
     def __iter__(self):
-        """Iterates through YOLO image feed and re-opens unresponsive streams."""
+        """Iterates through YOLO images feed and re-opens unresponsive streams."""
         self.count = -1
         return self
 
@@ -176,7 +176,7 @@ class LoadScreenshots:
 
 
 class LoadImages:
-    # YOLOv8 image/video dataloader, i.e. `yolo predict source=image.jpg/vid.mp4`
+    # YOLOv8 images/video dataloader, i.e. `yolo predict source=images.jpg/vid.mp4`
     def __init__(self, path, imgsz=640, stride=32, auto=True, transforms=None, vid_stride=1):
         """Initialize the Dataloader and raise FileNotFoundError if file not found."""
         if isinstance(path, str) and Path(path).suffix == '.txt':  # *.txt file with img/vid/dir on each line
@@ -202,7 +202,7 @@ class LoadImages:
         self.files = images + videos
         self.nf = ni + nv  # number of files
         self.video_flag = [False] * ni + [True] * nv
-        self.mode = 'image'
+        self.mode = 'images'
         self.auto = auto
         self.transforms = transforms  # optional
         self.vid_stride = vid_stride  # video frame-rate stride
@@ -222,7 +222,7 @@ class LoadImages:
         return self
 
     def __next__(self):
-        """Return next image, path and metadata from dataset."""
+        """Return next images, path and metadata from dataset."""
         if self.count == self.nf:
             raise StopIteration
         path = self.files[self.count]
@@ -247,12 +247,12 @@ class LoadImages:
             s = f'video {self.count + 1}/{self.nf} ({self.frame}/{self.frames}) {path}: '
 
         else:
-            # Read image
+            # Read images
             self.count += 1
             im0 = cv2.imread(path)  # BGR
             if im0 is None:
                 raise FileNotFoundError(f'Image Not Found {path}')
-            s = f'image {self.count}/{self.nf} {path}: '
+            s = f'images {self.count}/{self.nf} {path}: '
 
         if self.transforms:
             im = self.transforms(im0)  # transforms
@@ -294,20 +294,20 @@ class LoadPilAndNumpy:
         """Initialize PIL and Numpy Dataloader."""
         if not isinstance(im0, list):
             im0 = [im0]
-        self.paths = [getattr(im, 'filename', f'image{i}.jpg') for i, im in enumerate(im0)]
+        self.paths = [getattr(im, 'filename', f'images{i}.jpg') for i, im in enumerate(im0)]
         self.im0 = [self._single_check(im) for im in im0]
         self.imgsz = imgsz
         self.stride = stride
         self.auto = auto
         self.transforms = transforms
-        self.mode = 'image'
+        self.mode = 'images'
         # Generate fake paths
         self.bs = len(self.im0)
 
     @staticmethod
     def _single_check(im):
-        """Validate and format an image to numpy array."""
-        assert isinstance(im, (Image.Image, np.ndarray)), f'Expected PIL/np.ndarray image type, but got {type(im)}'
+        """Validate and format an images to numpy array."""
+        assert isinstance(im, (Image.Image, np.ndarray)), f'Expected PIL/np.ndarray images type, but got {type(im)}'
         if isinstance(im, Image.Image):
             if im.mode != 'RGB':
                 im = im.convert('RGB')
@@ -316,7 +316,7 @@ class LoadPilAndNumpy:
         return im
 
     def _single_preprocess(self, im, auto):
-        """Preprocesses a single image for inference."""
+        """Preprocesses a single images for inference."""
         if self.transforms:
             im = self.transforms(im)  # transforms
         else:
@@ -350,7 +350,7 @@ class LoadTensor:
     def __init__(self, imgs) -> None:
         self.im0 = imgs
         self.bs = imgs.shape[0]
-        self.mode = 'image'
+        self.mode = 'images'
 
     def __iter__(self):
         """Returns an iterator object."""

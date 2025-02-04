@@ -180,7 +180,7 @@ def fuse_iou(cost_matrix, tracks, detections):
     iou_dist = iou_distance(tracks, detections)
     iou_sim = 1 - iou_dist
     fuse_sim = reid_sim * (1 + iou_sim) / 2
-    # det_scores = np.array([det.score for det in detections])
+    # det_scores = np.array([labels.score for labels in detections])
     # det_scores = np.expand_dims(det_scores, axis=0).repeat(cost_matrix.shape[0], axis=0)
     return 1 - fuse_sim  # fuse cost
 

@@ -296,7 +296,7 @@ class AutoBackend(nn.Module):
         Runs inference on the YOLOv8 MultiBackend model.
 
         Args:
-            im (torch.Tensor): The image tensor to perform inference on.
+            im (torch.Tensor): The images tensor to perform inference on.
             augment (bool): whether to perform data augmentation during inference, defaults to False
             visualize (bool): whether to visualize the output predictions, defaults to False
 
@@ -340,7 +340,7 @@ class AutoBackend(nn.Module):
             im = im[0].cpu().numpy()
             im_pil = Image.fromarray((im * 255).astype('uint8'))
             # im = im.resize((192, 320), Image.ANTIALIAS)
-            y = self.model.predict({'image': im_pil})  # coordinates are xywh normalized
+            y = self.model.predict({'images': im_pil})  # coordinates are xywh normalized
             if 'confidence' in y:
                 box = xywh2xyxy(y['coordinates'] * [[w, h, w, h]])  # xyxy pixels
                 conf, cls = y['confidence'].max(1), y['confidence'].argmax(1).astype(np.float)
@@ -384,7 +384,7 @@ class AutoBackend(nn.Module):
                         x = (x.astype(np.float32) - zero_point) * scale  # re-scale
                     y.append(x)
             # TF segment fixes: export is reversed vs ONNX export and protos are transposed
-            if len(y) == 2:  # segment with (det, proto) output order reversed
+            if len(y) == 2:  # segment with (labels, proto) output order reversed
                 if len(y[1].shape) != 4:
                     y = list(reversed(y))  # should be y = (1, 116, 8400), (1, 160, 160, 32)
                 y[1] = np.transpose(y[1], (0, 3, 1, 2))  # should be y = (1, 116, 8400), (1, 32, 160, 160)

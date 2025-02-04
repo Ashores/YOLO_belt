@@ -10,7 +10,7 @@ import torch.nn as nn
 import pdb
 from ultralytics.nn.modules import (C1, C2, C3, C3TR, SPP, SPPF, Bottleneck, BottleneckCSP, C2f, C2f_4,C2f_2, C3Ghost, C3x, Classify,
                                     Concat, Conv, ConvTranspose, Detect, DWConv, DWConvTranspose2d, Ensemble, Focus,
-                                    GhostBottleneck, GhostConv, Pose, Segment)
+                                    GhostBottleneck, GhostConv, Pose, Segment, SlimConvolution)
 from ultralytics.yolo.utils import DEFAULT_CFG_DICT, DEFAULT_CFG_KEYS, LOGGER, colorstr, emojis, yaml_load
 from ultralytics.yolo.utils.checks import check_requirements, check_suffix, check_yaml
 from ultralytics.yolo.utils.torch_utils import (fuse_conv_and_bn, fuse_deconv_and_bn, initialize_weights,
@@ -28,7 +28,7 @@ class BaseModel(nn.Module):
         Wrapper for `_forward_once` method.
 
         Args:
-            x (torch.Tensor): The input image tensor
+            x (torch.Tensor): The input images tensor
             profile (bool): Whether to profile the model, defaults to False
             visualize (bool): Whether to return the intermediate feature maps, defaults to False
 
@@ -128,7 +128,7 @@ class BaseModel(nn.Module):
 
         Args:
             verbose (bool): if True, prints out the model information. Defaults to False
-            imgsz (int): the size of the image that the model will be trained on. Defaults to 640
+            imgsz (int): the size of the images that the model will be trained on. Defaults to 640
         """
         model_info(self, verbose=verbose, imgsz=imgsz)
 
@@ -199,13 +199,13 @@ class DetectionModel(BaseModel):
             LOGGER.info('')
 
     def forward(self, x, augment=False, profile=False, visualize=False):
-        """Run forward pass on input image(s) with optional augmentation and profiling."""
+        """Run forward pass on input images(s) with optional augmentation and profiling."""
         if augment:
             return self._forward_augment(x)  # augmented inference, None
         return self._forward_once(x, profile, visualize)  # single-scale inference, train
 
     def _forward_augment(self, x):
-        """Perform augmentations on input image x and return augmented inference and train outputs."""
+        """Perform augmentations on input images x and return augmented inference and train outputs."""
         img_size = x.shape[-2:]  # height, width
         s = [1, 0.83, 0.67]  # scales
         f = [None, 3, None]  # flips (2-ud, 3-lr)
@@ -473,7 +473,7 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
                     args[j] = locals()[a] if a in locals() else ast.literal_eval(a)
 
         n = n_ = max(round(n * depth), 1) if n > 1 else n  # depth gain
-        if m in (Classify, Conv, ConvTranspose, GhostConv, Bottleneck, GhostBottleneck, SPP, SPPF, DWConv, Focus,
+        if m in (Classify, Conv, ConvTranspose, GhostConv, Bottleneck, GhostBottleneck, SPP, SPPF, DWConv, Focus, SlimConvolution,
                  BottleneckCSP, C1, C2, C2f, C2f_4, C2f_2, C3, C3TR, C3Ghost, nn.ConvTranspose2d, DWConvTranspose2d, C3x):
 
 

@@ -9,6 +9,36 @@ import torch
 import torch.nn as nn
 import pdb
 from ultralytics.yolo.utils.tal import dist2bbox, make_anchors
+import torch.nn.functional as F
+
+class DepthwiseSeparableConv(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, padding=0):
+        super(DepthwiseSeparableConv, self).__init__()
+        self.depthwise = nn.Conv2d(in_channels, in_channels, kernel_size=kernel_size,
+                                   stride=stride, padding=padding, groups=in_channels)
+        self.pointwise = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1)
+
+    def forward(self, x):
+        out = self.depthwise(x)
+        out = self.pointwise(out)
+        return out
+
+class SlimConvolution(nn.Module):
+    """ A slim convolution block which uses depthwise separable convolutions. """
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(SlimConvolution, self).__init__()
+        self.reduced_channels = in_channels // 2
+        self.conv1xN = DepthwiseSeparableConv(in_channels, self.reduced_channels, kernel_size=(1, 5), stride=stride, padding=(0, 2))
+        self.convNx1 = DepthwiseSeparableConv(in_channels, self.reduced_channels, kernel_size=(5, 1), stride=stride, padding=(2, 0))
+        self.pointwise = nn.Conv2d(self.reduced_channels * 2, out_channels, kernel_size=1)
+
+    def forward(self, x):
+        conv1xN = self.conv1xN(x)
+        convNx1 = self.convNx1(x)
+        # Concatenate the outputs of the two convolutions
+        out = torch.cat([conv1xN, convNx1], dim=1)
+        out = self.pointwise(out)
+        return out
 
 
 def autopad(k, p=None, d=1):  # kernel, padding, dilation
@@ -510,7 +540,7 @@ class Proto(nn.Module):
         self.cv3 = Conv(c_, c2)
 
     def forward(self, x):
-        """Performs a forward pass through layers using an upsampled input image."""
+        """Performs a forward pass through layers using an upsampled input images."""
         return self.cv3(self.cv2(self.upsample(self.cv1(x))))
 
 
@@ -711,7 +741,7 @@ class Classify(nn.Module):
         self.linear = nn.Linear(c_, c2)  # to x(b,c2)
 
     def forward(self, x):
-        """Performs a forward pass of the YOLO model on input image data."""
+        """Performs a forward pass of the YOLO model on input images data."""
         if isinstance(x, list):
             x = torch.cat(x, 1)
         x = self.linear(self.drop(self.pool(self.conv(x)).flatten(1)))

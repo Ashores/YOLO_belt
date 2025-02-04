@@ -62,25 +62,25 @@ class Results(SimpleClass):
     A class for storing and manipulating inference results.
 
     Args:
-        orig_img (numpy.ndarray): The original image as a numpy array.
-        path (str): The path to the image file.
+        orig_img (numpy.ndarray): The original images as a numpy array.
+        path (str): The path to the images file.
         names (dict): A dictionary of class names.
         boxes (List[List[float]], optional): A list of bounding box coordinates for each detection.
-        masks (numpy.ndarray, optional): A 3D numpy array of detection masks, where each mask is a binary image.
+        masks (numpy.ndarray, optional): A 3D numpy array of detection masks, where each mask is a binary images.
         probs (numpy.ndarray, optional): A 2D numpy array of detection probabilities for each class.
         keypoints (List[List[float]], optional): A list of detected keypoints for each object.
 
 
     Attributes:
-        orig_img (numpy.ndarray): The original image as a numpy array.
-        orig_shape (tuple): The original image shape in (height, width) format.
+        orig_img (numpy.ndarray): The original images as a numpy array.
+        orig_shape (tuple): The original images shape in (height, width) format.
         boxes (Boxes, optional): A Boxes object containing the detection bounding boxes.
         masks (Masks, optional): A Masks object containing the detection masks.
         probs (numpy.ndarray, optional): A 2D numpy array of detection probabilities for each class.
         names (dict): A dictionary of class names.
-        path (str): The path to the image file.
+        path (str): The path to the images file.
         keypoints (List[List[float]], optional): A list of detected keypoints for each object.
-        speed (dict): A dictionary of preprocess, inference and postprocess speeds in milliseconds per image.
+        speed (dict): A dictionary of preprocess, inference and postprocess speeds in milliseconds per images.
         _keys (tuple): A tuple of attribute names for non-empty attributes.
     """
 
@@ -92,7 +92,7 @@ class Results(SimpleClass):
         self.masks = Masks(masks, self.orig_shape) if masks is not None else None  # native size or imgsz masks
         self.probs = probs if probs is not None else None
         self.keypoints = keypoints if keypoints is not None else None
-        self.speed = {'preprocess': None, 'inference': None, 'postprocess': None}  # milliseconds per image
+        self.speed = {'preprocess': None, 'inference': None, 'postprocess': None}  # milliseconds per images
         self.names = names
         self.path = path
         self._keys = ('boxes', 'masks', 'probs', 'keypoints')
@@ -152,7 +152,7 @@ class Results(SimpleClass):
             return len(getattr(self, k))
 
     def new(self):
-        """Return a new Results object with the same image, path, and names."""
+        """Return a new Results object with the same images, path, and names."""
         return Results(orig_img=self.orig_img, path=self.path, names=self.names)
 
     @property
@@ -177,16 +177,16 @@ class Results(SimpleClass):
             **kwargs  # deprecated args TODO: remove support in 8.2
     ):
         """
-        Plots the detection results on an input RGB image. Accepts a numpy array (cv2) or a PIL Image.
+        Plots the detection results on an input RGB images. Accepts a numpy array (cv2) or a PIL Image.
 
         Args:
             conf (bool): Whether to plot the detection confidence score.
-            line_width (float, optional): The line width of the bounding boxes. If None, it is scaled to the image size.
-            font_size (float, optional): The font size of the text. If None, it is scaled to the image size.
+            line_width (float, optional): The line width of the bounding boxes. If None, it is scaled to the images size.
+            font_size (float, optional): The font size of the text. If None, it is scaled to the images size.
             font (str): The font to use for the text.
-            pil (bool): Whether to return the image as a PIL Image.
-            img (numpy.ndarray): Plot to another image. if not, plot to original image.
-            img_gpu (torch.Tensor): Normalized image in gpu with shape (1, 3, 640, 640), for faster mask plotting.
+            pil (bool): Whether to return the images as a PIL Image.
+            img (numpy.ndarray): Plot to another images. if not, plot to original images.
+            img_gpu (torch.Tensor): Normalized images in gpu with shape (1, 3, 640, 640), for faster mask plotting.
             kpt_line (bool): Whether to draw lines connecting keypoints.
             labels (bool): Whether to plot the label of bounding boxes.
             boxes (bool): Whether to plot the bounding boxes.
@@ -194,7 +194,7 @@ class Results(SimpleClass):
             probs (bool): Whether to plot classification probability
 
         Returns:
-            (numpy.ndarray): A numpy array of the annotated image.
+            (numpy.ndarray): A numpy array of the annotated images.
         """
         # Deprecation warn TODO: remove in 8.2
         if 'show_conf' in kwargs:
@@ -323,11 +323,11 @@ class Boxes(BaseTensor):
     Args:
         boxes (torch.Tensor) or (numpy.ndarray): A tensor or numpy array containing the detection boxes,
             with shape (num_boxes, 6). The last two columns should contain confidence and class values.
-        orig_shape (tuple): Original image size, in the format (height, width).
+        orig_shape (tuple): Original images size, in the format (height, width).
 
     Attributes:
         boxes (torch.Tensor) or (numpy.ndarray): The detection boxes with shape (num_boxes, 6).
-        orig_shape (torch.Tensor) or (numpy.ndarray): Original image size, in the format (height, width).
+        orig_shape (torch.Tensor) or (numpy.ndarray): Original images size, in the format (height, width).
         is_track (bool): True if the boxes also include track IDs, False otherwise.
 
     Properties:
@@ -336,8 +336,8 @@ class Boxes(BaseTensor):
         cls (torch.Tensor) or (numpy.ndarray): The class values of the boxes.
         id (torch.Tensor) or (numpy.ndarray): The track IDs of the boxes (if available).
         xywh (torch.Tensor) or (numpy.ndarray): The boxes in xywh format.
-        xyxyn (torch.Tensor) or (numpy.ndarray): The boxes in xyxy format normalized by original image size.
-        xywhn (torch.Tensor) or (numpy.ndarray): The boxes in xywh format normalized by original image size.
+        xyxyn (torch.Tensor) or (numpy.ndarray): The boxes in xyxy format normalized by original images size.
+        xywhn (torch.Tensor) or (numpy.ndarray): The boxes in xywh format normalized by original images size.
         data (torch.Tensor): The raw bboxes tensor
 
     Methods:
@@ -388,13 +388,13 @@ class Boxes(BaseTensor):
     @property
     @lru_cache(maxsize=2)
     def xyxyn(self):
-        """Return the boxes in xyxy format normalized by original image size."""
+        """Return the boxes in xyxy format normalized by original images size."""
         return self.xyxy / self.orig_shape[[1, 0, 1, 0]]
 
     @property
     @lru_cache(maxsize=2)
     def xywhn(self):
-        """Return the boxes in xywh format normalized by original image size."""
+        """Return the boxes in xywh format normalized by original images size."""
         return self.xywh / self.orig_shape[[1, 0, 1, 0]]
 
     def pandas(self):
@@ -414,11 +414,11 @@ class Masks(BaseTensor):
 
     Args:
         masks (torch.Tensor): A tensor containing the detection masks, with shape (num_masks, height, width).
-        orig_shape (tuple): Original image size, in the format (height, width).
+        orig_shape (tuple): Original images size, in the format (height, width).
 
     Attributes:
         masks (torch.Tensor): A tensor containing the detection masks, with shape (num_masks, height, width).
-        orig_shape (tuple): Original image size, in the format (height, width).
+        orig_shape (tuple): Original images size, in the format (height, width).
 
     Properties:
         xy (list): A list of segments (pixels) which includes x, y segments of each detection.

@@ -139,6 +139,7 @@ class FeatureLoss(nn.Module):
             nn.Conv2d(channel, tea_channel, kernel_size=1, stride=1, padding=0).to(device)
             for channel, tea_channel in zip(channels_s, channels_t)
         ])
+
         self.norm = [
             nn.BatchNorm2d(tea_channel, affine=False).to(device)
             for tea_channel in channels_t
@@ -155,7 +156,6 @@ class FeatureLoss(nn.Module):
         assert len(y_s) == len(y_t)
         tea_feats = []
         stu_feats = []
-
         for idx, (s, t) in enumerate(zip(y_s, y_t)):
             s = self.align_module[idx](s)
             s = self.norm[idx](s)
@@ -173,7 +173,8 @@ class Distillation_loss:
         self.distiller = distiller
         # channels_s=[32,64,128,256,128,64,128,256]
         # channels_t=[128,256,512,512,512,256,512,512]
-        channels_s=[128,256,128,64,128,256]
+        # channels_s=[128,256,128,64,128,256] #yolo_s.pt
+        channels_s=[64,128,64,32,64,128]   #yolo_s.yaml
         channels_t=[512,512,512,256,512,512]
         # channels_s=[64,128,256]
         # channels_t=[256,512,512]
@@ -579,9 +580,9 @@ class BaseTrainer:
                             # self.d_loss += distillation_loss.D_loss_fn(pred,preds)
 
                         self.d_loss *= distill_weight
-                        if i == 0:
-                            print(self.d_loss)
-                            print(self.loss)
+                        # if i == 0:
+                        #     print(self.d_loss)
+                        #     print(self.loss)
                         self.loss += self.d_loss
 
                 self.scaler.scale(self.loss).backward()
@@ -868,15 +869,15 @@ class BaseTrainer:
                 g[1].append(v.weight)
             elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):  # weight (with decay)
                 g[0].append(v.weight)
-
-        for v in model1.modules():
-            # print(v)
-            if hasattr(v, 'bias') and isinstance(v.bias, nn.Parameter):  # bias (no decay)
-                g[2].append(v.bias)
-            if isinstance(v, bn):  # weight (no decay)
-                g[1].append(v.weight)
-            elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):  # weight (with decay)
-                g[0].append(v.weight)
+        if model1 is not None:
+            for v in model1.modules():
+                # print(v)
+                if hasattr(v, 'bias') and isinstance(v.bias, nn.Parameter):  # bias (no decay)
+                    g[2].append(v.bias)
+                if isinstance(v, bn):  # weight (no decay)
+                    g[1].append(v.weight)
+                elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):  # weight (with decay)
+                    g[0].append(v.weight)
 
         if name == 'Adam':
             optimizer = torch.optim.Adam(g[2], lr=lr, betas=(momentum, 0.999))  # adjust beta1 to momentum
@@ -923,7 +924,7 @@ def check_amp(model):
         del m
         return a.shape == b.shape and torch.allclose(a, b.float(), atol=0.5)  # close to 0.5 absolute tolerance
 
-    f = ROOT / 'assets/bus.jpg'  # image to check
+    f = ROOT / 'assets/bus.jpg'  # images to check
     im = f if f.exists() else 'https://ultralytics.com/images/bus.jpg' if ONLINE else np.ones((640, 640, 3))
     prefix = colorstr('AMP: ')
     LOGGER.info(f'{prefix}running Automatic Mixed Precision (AMP) checks with YOLOv8n...')

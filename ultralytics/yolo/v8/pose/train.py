@@ -97,7 +97,7 @@ class PoseLoss(Loss):
         pred_kpts = pred_kpts.permute(0, 2, 1).contiguous()
 
         dtype = pred_scores.dtype
-        imgsz = torch.tensor(feats[0].shape[2:], device=self.device, dtype=dtype) * self.stride[0]  # image size (h,w)
+        imgsz = torch.tensor(feats[0].shape[2:], device=self.device, dtype=dtype) * self.stride[0]  # images size (h,w)
         anchor_points, stride_tensor = make_anchors(feats, self.stride, 0.5)
 
         # targets
@@ -153,7 +153,7 @@ class PoseLoss(Loss):
         return loss.sum() * batch_size, loss.detach()  # loss(box, cls, dfl)
 
     def kpts_decode(self, anchor_points, pred_kpts):
-        """Decodes predicted keypoints to image coordinates."""
+        """Decodes predicted keypoints to images coordinates."""
         y = pred_kpts.clone()
         y[..., :2] *= 2.0
         y[..., 0] += anchor_points[:, [0]] - 0.5
