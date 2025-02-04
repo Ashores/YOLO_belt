@@ -5,7 +5,7 @@ The code of YOLO_belt
 ```bash
 pip install -e '.[dev]'
 ```
-The dataset you can download from https://github.com/Ashores/YOLO_belt/tree/master/belt
+The dataset you can see from https://github.com/Ashores/YOLO_belt/tree/master/belt
 
 train the model 
 ```bash
